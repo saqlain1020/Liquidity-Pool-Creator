@@ -42,10 +42,20 @@ contract ETHUNIPool is Ownable {
     }
 
     // TODO: require minimum swap amount limit
+    // TODO: get estimated swap amount
 
     // Swap Eth for Uniswap with fee distribute as well
     // Fees is paid first from the token being swapped out
     // Swap Uniswap for Eth with fee distribute as well
+    /**
+        Swapping Steps:
+        1. Check if the user has enough balance to swap
+        2. Calulate Fee method
+        3. Put tokens in contract
+        4. calculate tokens to transfer user with given amount - fees deducted using formulas (create method)
+        5. transfer tokens to user
+        6. call distributeFees()
+     */
 
     function _calculateFee(uint256 _tokenAmount)
         private
