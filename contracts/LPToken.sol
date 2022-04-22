@@ -79,7 +79,7 @@ contract LPToken is Ownable, IERC20 {
     }
 
     function transfer(address _to, uint256 _amount) external returns (bool) {
-        require(balances[msg.sender] >= _amount);
+        require(balances[msg.sender] >= _amount, "Not enough balance");
         _transfer(msg.sender, _to, _amount);
         emit Transfer(msg.sender, _to, _amount);
         return true;

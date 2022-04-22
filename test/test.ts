@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { BigNumberish } from "ethers";
+import { BigNumberish, ContractReceipt } from "ethers";
 import { ethers } from "hardhat";
 import JsonData from "../artifacts/contracts/WETHUNIPool.sol/WETHUNIPool.json";
 import { LPToken, WETHUNIPool } from "../typechain-types";
@@ -16,10 +16,10 @@ describe("ETHUNIPool", function () {
     const ContractFactoryPool = await ethers.getContractFactory("WETHUNIPool");
     const contractPool = await ContractFactoryPool.deploy(contractToken1.address, contractToken2.address, "T1", "T2");
     contractPool.deployed();
-    
+
     contractToken1._mint(owner.address, toWei("1000000"));
     contractToken2._mint(owner.address, toWei("1000000"));
-    
+
     await getBalances(contractToken1, contractToken2, owner.address);
 
     await contractToken1.approve(contractPool.address, toWei("100"));
@@ -36,13 +36,41 @@ describe("ETHUNIPool", function () {
     console.log("After swap should get", toEth(resultingOfSwap));
 
     await contractPool.swap(toWei("10"), "0");
+    await debugContractBalances(contractPool, contractToken1, contractToken2);
 
     await getBalances(contractToken1, contractToken2, owner.address);
-
+    
     await getLpTokenBalance(contractPool, owner.address);
     await getLpTokenSupply(contractPool);
+    
+    let receipt = await (await contractPool.withdrawLiquidity()).wait();
+    printLastEvent(receipt);
+    
+    console.log("After withdraw");
+    console.log("Contract Tokens")
+    console.log(toEth(await contractPool.reserveToken1()))
+    console.log(toEth(await contractPool.reserveToken2()))
+    await getBalances(contractToken1, contractToken2, owner.address);
   });
 });
+
+async function printLastEvent(receipt : ContractReceipt) {
+  let iface = new ethers.utils.Interface(JsonData.abi);
+  let args = iface.parseLog(receipt.logs[receipt.logs.length - 1]).args;
+  console.log(args);
+  return args;
+}
+
+async function debugContractBalances(contract: WETHUNIPool, token1: LPToken, token2: LPToken) {
+  let res1 = toEth(await contract.reserveToken1());
+  let res2 = toEth(await contract.reserveToken2());
+  let actual1 = toEth(await token1.balanceOf(contract.address));
+  let actual2 = toEth(await token2.balanceOf(contract.address));
+  console.log("Res 1:", res1);
+  console.log("Actual 1:", actual1);
+  console.log("Res 2:", res2);
+  console.log("Actual 2:", actual2);
+}
 
 async function getLpTokenSupply(contract: WETHUNIPool) {
   console.log("LP Tokens Supply:", toEth(await contract.lpTokenSupply()));

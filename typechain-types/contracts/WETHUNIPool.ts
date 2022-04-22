@@ -38,6 +38,8 @@ export interface WETHUNIPoolInterface extends utils.Interface {
     "owner()": FunctionFragment;
     "productConstant()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
+    "reserveToken1()": FunctionFragment;
+    "reserveToken2()": FunctionFragment;
     "resultingTokens(uint256,uint8)": FunctionFragment;
     "swap(uint256,uint8)": FunctionFragment;
     "token1()": FunctionFragment;
@@ -62,6 +64,8 @@ export interface WETHUNIPoolInterface extends utils.Interface {
       | "owner"
       | "productConstant"
       | "renounceOwnership"
+      | "reserveToken1"
+      | "reserveToken2"
       | "resultingTokens"
       | "swap"
       | "token1"
@@ -106,6 +110,14 @@ export interface WETHUNIPoolInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "renounceOwnership",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "reserveToken1",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "reserveToken2",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -172,6 +184,14 @@ export interface WETHUNIPoolInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "renounceOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "reserveToken1",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "reserveToken2",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -307,6 +327,10 @@ export interface WETHUNIPool extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    reserveToken1(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    reserveToken2(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     resultingTokens(
       _amount: BigNumberish,
       _sendingToken: BigNumberish,
@@ -372,6 +396,10 @@ export interface WETHUNIPool extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  reserveToken1(overrides?: CallOverrides): Promise<BigNumber>;
+
+  reserveToken2(overrides?: CallOverrides): Promise<BigNumber>;
+
   resultingTokens(
     _amount: BigNumberish,
     _sendingToken: BigNumberish,
@@ -432,6 +460,10 @@ export interface WETHUNIPool extends BaseContract {
     productConstant(overrides?: CallOverrides): Promise<BigNumber>;
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
+
+    reserveToken1(overrides?: CallOverrides): Promise<BigNumber>;
+
+    reserveToken2(overrides?: CallOverrides): Promise<BigNumber>;
 
     resultingTokens(
       _amount: BigNumberish,
@@ -532,6 +564,10 @@ export interface WETHUNIPool extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    reserveToken1(overrides?: CallOverrides): Promise<BigNumber>;
+
+    reserveToken2(overrides?: CallOverrides): Promise<BigNumber>;
+
     resultingTokens(
       _amount: BigNumberish,
       _sendingToken: BigNumberish,
@@ -597,6 +633,10 @@ export interface WETHUNIPool extends BaseContract {
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
+
+    reserveToken1(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    reserveToken2(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     resultingTokens(
       _amount: BigNumberish,

@@ -15,8 +15,8 @@ contract WETHUNIPool is Ownable {
     string public token1Name;
     string public token2Name;
 
-    uint256 private reserveToken1 = 0;
-    uint256 private reserveToken2 = 0;
+    uint256 public reserveToken1 = 0;
+    uint256 public reserveToken2 = 0;
     event LiquidityAdded(
         address indexed _from,
         uint256 _amount1,
@@ -62,12 +62,24 @@ contract WETHUNIPool is Ownable {
         reserveNotZero
         returns (bool)
     {
+        // 0. Check if sending token is approved for transfer
+        if (_sendingToken == Token.TOKEN1) {
+            require(
+                token1.allowance(msg.sender, address(this)) >= _amount,
+                "Not enough allowance"
+            );
+        } else {
+            require(
+                token2.allowance(msg.sender, address(this)) >= _amount,
+                "Not enough allowance"
+            );
+        }
         // 1. Send resulting tokens to user
         uint256 _resultingTokens = resultingTokens(_amount, _sendingToken);
         if (_sendingToken == Token.TOKEN1) {
-            token1.transfer(msg.sender, _resultingTokens);
-        } else if (_sendingToken == Token.TOKEN2) {
             token2.transfer(msg.sender, _resultingTokens);
+        } else if (_sendingToken == Token.TOKEN2) {
+            token1.transfer(msg.sender, _resultingTokens);
         } else {
             assert(true);
         }
@@ -82,16 +94,11 @@ contract WETHUNIPool is Ownable {
         // 3. TODO - external function
 
         // 4. transfer tokens to contract
-        (bool success, ) = address(
-            _sendingToken == Token.TOKEN1 ? token1 : token2
-        ).call(
-                abi.encodeWithSignature(
-                    "transfer(address,uint256)",
-                    address(this),
-                    _amount
-                )
-            );
-        assert(success);
+        (_sendingToken == Token.TOKEN1 ? token1 : token2).transferFrom(
+            msg.sender,
+            address(this),
+            _amount
+        );
         return true;
     }
 
@@ -255,7 +262,10 @@ contract WETHUNIPool is Ownable {
     }
 
     modifier reserveNotZero() {
-        require(reserveToken1 > 0 && reserveToken2 > 0, "Reserve tokens must be greater than 0");
+        require(
+            reserveToken1 > 0 && reserveToken2 > 0,
+            "Reserve tokens must be greater than 0"
+        );
         _;
     }
 }
