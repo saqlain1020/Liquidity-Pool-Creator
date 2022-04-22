@@ -9,7 +9,7 @@ async function main() {
   // await hre.run('compile');
 
   // We get the contract to deploy
-  const ContractFactory = await hre.ethers.getContractFactory("WETHUNIPool");
+  const ContractFactory = await hre.ethers.getContractFactory("Pool");
   const constructorArguments = [
     "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6",
     "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",

@@ -1,11 +1,12 @@
 import { expect } from "chai";
 import { BigNumberish, ContractReceipt } from "ethers";
 import { ethers } from "hardhat";
-import JsonData from "../artifacts/contracts/WETHUNIPool.sol/WETHUNIPool.json";
-import { LPToken, WETHUNIPool } from "../typechain-types";
+import JsonData from "../artifacts/contracts/Pool.sol/Pool.json";
+import JsonDataFactory from "../artifacts/contracts/PoolFactory.sol/PoolFactory.json";
+import { LPToken, Pool } from "../typechain-types";
 
-describe("ETHUNIPool", function () {
-  it("Should pass the test", async function () {
+describe("Pool", function () {
+  it("Should pass the pool test", async function () {
     const [owner] = await ethers.getSigners();
     const ContractFactoryToken1 = await ethers.getContractFactory("LPToken");
     const ContractFactoryToken2 = await ethers.getContractFactory("LPToken");
@@ -13,7 +14,7 @@ describe("ETHUNIPool", function () {
     const contractToken2 = await ContractFactoryToken2.deploy("Token2", "T2");
     await contractToken1.deployed();
     await contractToken2.deployed();
-    const ContractFactoryPool = await ethers.getContractFactory("WETHUNIPool");
+    const ContractFactoryPool = await ethers.getContractFactory("Pool");
     const contractPool = await ContractFactoryPool.deploy(contractToken1.address, contractToken2.address, "T1", "T2");
     contractPool.deployed();
 
@@ -39,29 +40,47 @@ describe("ETHUNIPool", function () {
     await debugContractBalances(contractPool, contractToken1, contractToken2);
 
     await getBalances(contractToken1, contractToken2, owner.address);
-    
+
     await getLpTokenBalance(contractPool, owner.address);
     await getLpTokenSupply(contractPool);
-    
+
     let receipt = await (await contractPool.withdrawLiquidity()).wait();
-    printLastEvent(receipt);
-    
+    printLastEvent(receipt, JsonData.abi);
+
     console.log("After withdraw");
-    console.log("Contract Tokens")
-    console.log(toEth(await contractPool.reserveToken1()))
-    console.log(toEth(await contractPool.reserveToken2()))
+    console.log("Contract Tokens");
+    console.log(toEth(await contractPool.reserveToken1()));
+    console.log(toEth(await contractPool.reserveToken2()));
     await getBalances(contractToken1, contractToken2, owner.address);
+  });
+
+  it("Should pass the pool factory test", async function () {
+    const ContractFactory = await ethers.getContractFactory("PoolFactory");
+    const contract = await ContractFactory.deploy();
+    contract.deployed();
+    const ContractFactoryToken1 = await ethers.getContractFactory("LPToken");
+    const ContractFactoryToken2 = await ethers.getContractFactory("LPToken");
+    const token1 = await ContractFactoryToken1.deploy("Token1", "T1");
+    const token2 = await ContractFactoryToken2.deploy("Token2", "T2");
+    await token1.deployed();
+    await token2.deployed();
+
+    let receipt = await (await contract.createPool(token1.address, token2.address, "T1", "T2")).wait();
+    printLastEvent(receipt, JsonDataFactory.abi);
+
+    let pool = await contract.getPool(token1.address, token2.address);
+    console.log("Created pool", pool);
   });
 });
 
-async function printLastEvent(receipt : ContractReceipt) {
-  let iface = new ethers.utils.Interface(JsonData.abi);
+async function printLastEvent(receipt: ContractReceipt, abi: any) {
+  let iface = new ethers.utils.Interface(abi);
   let args = iface.parseLog(receipt.logs[receipt.logs.length - 1]).args;
   console.log(args);
   return args;
 }
 
-async function debugContractBalances(contract: WETHUNIPool, token1: LPToken, token2: LPToken) {
+async function debugContractBalances(contract: Pool, token1: LPToken, token2: LPToken) {
   let res1 = toEth(await contract.reserveToken1());
   let res2 = toEth(await contract.reserveToken2());
   let actual1 = toEth(await token1.balanceOf(contract.address));
@@ -72,10 +91,10 @@ async function debugContractBalances(contract: WETHUNIPool, token1: LPToken, tok
   console.log("Actual 2:", actual2);
 }
 
-async function getLpTokenSupply(contract: WETHUNIPool) {
+async function getLpTokenSupply(contract: Pool) {
   console.log("LP Tokens Supply:", toEth(await contract.lpTokenSupply()));
 }
-async function getLpTokenBalance(contract: WETHUNIPool, owner: string) {
+async function getLpTokenBalance(contract: Pool, owner: string) {
   console.log("LP Tokens:", toEth(await contract.lpTokenBalanceOf(owner)));
 }
 
@@ -91,7 +110,7 @@ async function getAllowance(owner: string, sender: string, contract: LPToken) {
   console.log(sym, "Allowance", toEth(allowance));
 }
 
-async function addLiquidity(amount1: number, amount2: number, contract: WETHUNIPool) {
+async function addLiquidity(amount1: number, amount2: number, contract: Pool) {
   let receipt = await (await contract.addLiquidity(toWei(amount1), toWei(amount2))).wait();
 
   const iface = new ethers.utils.Interface(JsonData.abi);

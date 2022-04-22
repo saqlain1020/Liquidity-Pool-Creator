@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/interfaces/IERC20.sol";
 import "./LPToken.sol";
 
-contract WETHUNIPool is Ownable {
+contract Pool is Ownable {
     // address public wethAddress = 0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6;
     // address public uniswapAddress = 0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984;
     // 0.3%
@@ -267,6 +267,14 @@ contract WETHUNIPool is Ownable {
             "Reserve tokens must be greater than 0"
         );
         _;
+    }
+
+    function token1Address() public view returns (address) {
+        return address(token1);
+    }
+
+    function token2Address() public view returns (address) {
+        return address(token2);
     }
 }
 
