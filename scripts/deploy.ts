@@ -1,14 +1,6 @@
 import hre from "hardhat";
 
-async function main() {
-  // Hardhat always runs the compile task when running scripts with its command
-  // line interface.
-  //
-  // If this script is run directly using `node` you may want to call compile
-  // manually to make sure everything is compiled
-  // await hre.run('compile');
-
-  // We get the contract to deploy
+async function deployPool() {
   const ContractFactory = await hre.ethers.getContractFactory("Pool");
   const constructorArguments = [
     "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6",
@@ -32,6 +24,27 @@ async function main() {
   hre.network.name === "hardhat"
     ? console.log("Skipping verify")
     : await verifyContract(contract.address, constructorArguments);
+}
+
+async function deployPoolFactory() {
+  const ContractFactory = await hre.ethers.getContractFactory("PoolFactory");
+  const contract = await ContractFactory.deploy();
+
+  await contract.deployed();
+
+  console.log("Contract deployed to:", contract.address);
+
+  await contract.deployTransaction.wait();
+
+  hre.network.name === "hardhat" ? console.log("Skipping verify") : await verifyContract(contract.address, []);
+}
+
+async function main() {
+  console.log("Uncomment to deploy");
+  // console.log("Deploying Pool");
+  // await deployPool();
+  // console.log("Deploying PoolFactory");
+  // await deployPoolFactory()
 }
 
 function verifyContract(contractAddress: string, constructorArguments: string[], intervalSec: number = 10) {
