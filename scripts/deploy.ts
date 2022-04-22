@@ -9,8 +9,19 @@ async function main() {
   // await hre.run('compile');
 
   // We get the contract to deploy
-  const ContractFactory = await hre.ethers.getContractFactory("ETHUNIPool");
-  const contract = await ContractFactory.deploy();
+  const ContractFactory = await hre.ethers.getContractFactory("WETHUNIPool");
+  const constructorArguments = [
+    "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6",
+    "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
+    "WETH",
+    "UNI",
+  ];
+  const contract = await ContractFactory.deploy(
+    constructorArguments[0],
+    constructorArguments[1],
+    constructorArguments[2],
+    constructorArguments[3]
+  );
 
   await contract.deployed();
 
@@ -18,7 +29,9 @@ async function main() {
 
   await contract.deployTransaction.wait();
 
-  hre.network.name === "hardhat" ? console.log("Skipping verify") : await verifyContract(contract.address, []);
+  hre.network.name === "hardhat"
+    ? console.log("Skipping verify")
+    : await verifyContract(contract.address, constructorArguments);
 }
 
 function verifyContract(contractAddress: string, constructorArguments: string[], intervalSec: number = 10) {
@@ -44,7 +57,7 @@ function verifyContract(contractAddress: string, constructorArguments: string[],
           }
         }, 1000);
       }
-    })()
+    })();
     setTimeout(rej, 1000 * 60 * 5); // 5 minutes timeout
   });
 }

@@ -29,7 +29,12 @@ import type {
 export interface WETHUNIPoolInterface extends utils.Interface {
   functions: {
     "addLiquidity(uint256,uint256)": FunctionFragment;
+    "destroyContract()": FunctionFragment;
+    "feeDecimals()": FunctionFragment;
+    "feePercent()": FunctionFragment;
     "lpToken()": FunctionFragment;
+    "lpTokenBalanceOf(address)": FunctionFragment;
+    "lpTokenSupply()": FunctionFragment;
     "owner()": FunctionFragment;
     "productConstant()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
@@ -37,8 +42,10 @@ export interface WETHUNIPoolInterface extends utils.Interface {
     "swap(uint256,uint8)": FunctionFragment;
     "token1()": FunctionFragment;
     "token1Balance()": FunctionFragment;
+    "token1Name()": FunctionFragment;
     "token2()": FunctionFragment;
     "token2Balance()": FunctionFragment;
+    "token2Name()": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
     "withdrawLiquidity()": FunctionFragment;
   };
@@ -46,7 +53,12 @@ export interface WETHUNIPoolInterface extends utils.Interface {
   getFunction(
     nameOrSignatureOrTopic:
       | "addLiquidity"
+      | "destroyContract"
+      | "feeDecimals"
+      | "feePercent"
       | "lpToken"
+      | "lpTokenBalanceOf"
+      | "lpTokenSupply"
       | "owner"
       | "productConstant"
       | "renounceOwnership"
@@ -54,8 +66,10 @@ export interface WETHUNIPoolInterface extends utils.Interface {
       | "swap"
       | "token1"
       | "token1Balance"
+      | "token1Name"
       | "token2"
       | "token2Balance"
+      | "token2Name"
       | "transferOwnership"
       | "withdrawLiquidity"
   ): FunctionFragment;
@@ -64,7 +78,27 @@ export interface WETHUNIPoolInterface extends utils.Interface {
     functionFragment: "addLiquidity",
     values: [BigNumberish, BigNumberish]
   ): string;
+  encodeFunctionData(
+    functionFragment: "destroyContract",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "feeDecimals",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "feePercent",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "lpToken", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "lpTokenBalanceOf",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "lpTokenSupply",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "productConstant",
@@ -87,9 +121,17 @@ export interface WETHUNIPoolInterface extends utils.Interface {
     functionFragment: "token1Balance",
     values?: undefined
   ): string;
+  encodeFunctionData(
+    functionFragment: "token1Name",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "token2", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "token2Balance",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "token2Name",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -105,7 +147,24 @@ export interface WETHUNIPoolInterface extends utils.Interface {
     functionFragment: "addLiquidity",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "destroyContract",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "feeDecimals",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "feePercent", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "lpToken", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "lpTokenBalanceOf",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "lpTokenSupply",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "productConstant",
@@ -125,11 +184,13 @@ export interface WETHUNIPoolInterface extends utils.Interface {
     functionFragment: "token1Balance",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "token1Name", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "token2", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "token2Balance",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "token2Name", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "transferOwnership",
     data: BytesLike
@@ -221,7 +282,22 @@ export interface WETHUNIPool extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    destroyContract(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    feeDecimals(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    feePercent(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     lpToken(overrides?: CallOverrides): Promise<[string]>;
+
+    lpTokenBalanceOf(
+      _account: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    lpTokenSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
@@ -247,9 +323,13 @@ export interface WETHUNIPool extends BaseContract {
 
     token1Balance(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    token1Name(overrides?: CallOverrides): Promise<[string]>;
+
     token2(overrides?: CallOverrides): Promise<[string]>;
 
     token2Balance(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    token2Name(overrides?: CallOverrides): Promise<[string]>;
 
     transferOwnership(
       newOwner: string,
@@ -267,7 +347,22 @@ export interface WETHUNIPool extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  destroyContract(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  feeDecimals(overrides?: CallOverrides): Promise<BigNumber>;
+
+  feePercent(overrides?: CallOverrides): Promise<BigNumber>;
+
   lpToken(overrides?: CallOverrides): Promise<string>;
+
+  lpTokenBalanceOf(
+    _account: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  lpTokenSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
   owner(overrides?: CallOverrides): Promise<string>;
 
@@ -293,9 +388,13 @@ export interface WETHUNIPool extends BaseContract {
 
   token1Balance(overrides?: CallOverrides): Promise<BigNumber>;
 
+  token1Name(overrides?: CallOverrides): Promise<string>;
+
   token2(overrides?: CallOverrides): Promise<string>;
 
   token2Balance(overrides?: CallOverrides): Promise<BigNumber>;
+
+  token2Name(overrides?: CallOverrides): Promise<string>;
 
   transferOwnership(
     newOwner: string,
@@ -313,7 +412,20 @@ export interface WETHUNIPool extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
+    destroyContract(overrides?: CallOverrides): Promise<void>;
+
+    feeDecimals(overrides?: CallOverrides): Promise<BigNumber>;
+
+    feePercent(overrides?: CallOverrides): Promise<BigNumber>;
+
     lpToken(overrides?: CallOverrides): Promise<string>;
+
+    lpTokenBalanceOf(
+      _account: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    lpTokenSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
@@ -337,9 +449,13 @@ export interface WETHUNIPool extends BaseContract {
 
     token1Balance(overrides?: CallOverrides): Promise<BigNumber>;
 
+    token1Name(overrides?: CallOverrides): Promise<string>;
+
     token2(overrides?: CallOverrides): Promise<string>;
 
     token2Balance(overrides?: CallOverrides): Promise<BigNumber>;
+
+    token2Name(overrides?: CallOverrides): Promise<string>;
 
     transferOwnership(
       newOwner: string,
@@ -391,7 +507,22 @@ export interface WETHUNIPool extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    destroyContract(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    feeDecimals(overrides?: CallOverrides): Promise<BigNumber>;
+
+    feePercent(overrides?: CallOverrides): Promise<BigNumber>;
+
     lpToken(overrides?: CallOverrides): Promise<BigNumber>;
+
+    lpTokenBalanceOf(
+      _account: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    lpTokenSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -417,9 +548,13 @@ export interface WETHUNIPool extends BaseContract {
 
     token1Balance(overrides?: CallOverrides): Promise<BigNumber>;
 
+    token1Name(overrides?: CallOverrides): Promise<BigNumber>;
+
     token2(overrides?: CallOverrides): Promise<BigNumber>;
 
     token2Balance(overrides?: CallOverrides): Promise<BigNumber>;
+
+    token2Name(overrides?: CallOverrides): Promise<BigNumber>;
 
     transferOwnership(
       newOwner: string,
@@ -438,7 +573,22 @@ export interface WETHUNIPool extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    destroyContract(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    feeDecimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    feePercent(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     lpToken(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    lpTokenBalanceOf(
+      _account: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    lpTokenSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -464,9 +614,13 @@ export interface WETHUNIPool extends BaseContract {
 
     token1Balance(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    token1Name(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     token2(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     token2Balance(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    token2Name(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     transferOwnership(
       newOwner: string,

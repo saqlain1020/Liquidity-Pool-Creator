@@ -10,8 +10,10 @@ contract WETHUNIPool is Ownable {
     // address public wethAddress = 0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6;
     // address public uniswapAddress = 0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984;
     // 0.3%
-    uint256 feePercent = 3;
-    uint256 feeDecimals = 1;
+    uint256 public feePercent = 3;
+    uint256 public feeDecimals = 1;
+    string public token1Name;
+    string public token2Name;
 
     uint256 private reserveToken1 = 0;
     uint256 private reserveToken2 = 0;
@@ -36,9 +38,17 @@ contract WETHUNIPool is Ownable {
         TOKEN2
     }
 
-    constructor(address _token1, address _token2) {
+    constructor(
+        address _token1,
+        address _token2,
+        string memory _name1,
+        string memory _name2
+    ) {
         token1 = IERC20(_token1);
         token2 = IERC20(_token2);
+        token1Name = _name1;
+        token2Name = _name2;
+
         lpToken = new LPToken("LPToken", "LP");
         // 0.3%
         feePercent = 3;
@@ -49,6 +59,7 @@ contract WETHUNIPool is Ownable {
 
     function swap(uint256 _amount, Token _sendingToken)
         external
+        reserveNotZero
         returns (bool)
     {
         // 1. Send resulting tokens to user
@@ -73,7 +84,7 @@ contract WETHUNIPool is Ownable {
         // 4. transfer tokens to contract
         (bool success, ) = address(
             _sendingToken == Token.TOKEN1 ? token1 : token2
-        ).delegatecall(
+        ).call(
                 abi.encodeWithSignature(
                     "transfer(address,uint256)",
                     address(this),
@@ -88,6 +99,7 @@ contract WETHUNIPool is Ownable {
     function resultingTokens(uint256 _amount, Token _sendingToken)
         public
         view
+        reserveNotZero
         returns (uint256)
     {
         uint256 _result = 0;
@@ -97,8 +109,9 @@ contract WETHUNIPool is Ownable {
         if (_sendingToken == Token.TOKEN1) {
             uint256 _endingToken2Reserve = (_kconst /
                 (_amount - _calculateFee(_amount) + _reserveToken1));
+
             require(
-                _endingToken2Reserve >= reserveToken2,
+                _endingToken2Reserve <= reserveToken2,
                 "Not enough reserve token 2"
             );
             _result = reserveToken2 - _endingToken2Reserve;
@@ -106,7 +119,7 @@ contract WETHUNIPool is Ownable {
             uint256 _endingToken1Reserve = (_kconst /
                 (_amount - _calculateFee(_amount) + _reserveToken2));
             require(
-                _endingToken1Reserve >= reserveToken1,
+                _endingToken1Reserve <= reserveToken1,
                 "Not enough reserve token 1"
             );
             _result = reserveToken1 - _endingToken1Reserve;
@@ -129,19 +142,19 @@ contract WETHUNIPool is Ownable {
         returns (bool)
     {
         require(_amount1 > 0 && _amount2 > 0, "Amounts must be greater than 0");
-        (bool success, ) = address(token1).delegatecall(
-            abi.encodeWithSignature(
-                "transfer(address,uint256)",
-                address(this),
-                _amount1
-            )
+        require(
+            token1.allowance(msg.sender, address(this)) >= _amount1,
+            "Not enough allowance"
         );
-        (bool success2, ) = address(token2).delegatecall(
-            abi.encodeWithSignature(
-                "transfer(address,uint256)",
-                address(this),
-                _amount2
-            )
+        require(
+            token2.allowance(msg.sender, address(this)) >= _amount2,
+            "Not enough allowance"
+        );
+        bool success = token1.transferFrom(msg.sender, address(this), _amount1);
+        bool success2 = token2.transferFrom(
+            msg.sender,
+            address(this),
+            _amount2
         );
         require(success && success2, "Tokens transfer failed");
         uint256 _lpTokensToMint = _calculateLpTokens(_amount1, _amount2);
@@ -227,6 +240,23 @@ contract WETHUNIPool is Ownable {
             }
             return 0;
         }
+    }
+
+    function destroyContract() public onlyOwner {
+        selfdestruct(payable(msg.sender));
+    }
+
+    function lpTokenBalanceOf(address _account) public view returns (uint256) {
+        return lpToken.balanceOf(_account);
+    }
+
+    function lpTokenSupply() public view returns (uint256) {
+        return lpToken.totalSupply();
+    }
+
+    modifier reserveNotZero() {
+        require(reserveToken1 > 0 && reserveToken2 > 0, "Reserve tokens must be greater than 0");
+        _;
     }
 }
 
