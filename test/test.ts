@@ -70,9 +70,10 @@ describe("Pool", function () {
     await token2.deployed();
 
     let receipt = await (await contract.createPool(token1.address, token2.address, "T1", "T2")).wait();
-    printLastEvent(receipt, JsonDataFactory.abi);
+    let args = await printLastEvent(receipt, JsonDataFactory.abi);
 
     let pool = await contract.getPool(token1.address, token2.address);
+    expect(args[0]).to.equal(pool);
     console.log("Created pool", pool);
   });
 });

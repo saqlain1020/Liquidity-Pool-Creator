@@ -62,7 +62,6 @@ contract Pool is Ownable {
         reserveNotZero
         returns (bool)
     {
-        console.log("inswap");
         // 0. Check if sending token is approved for transfer
         if (_sendingToken == Token.TOKEN1) {
             require(

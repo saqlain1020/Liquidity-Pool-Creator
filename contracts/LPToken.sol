@@ -7,8 +7,8 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract LPToken is Ownable, IERC20 {
-    string public name = "LPToken";
-    string public symbol = "LP";
+    string public name;
+    string public symbol;
     uint8 public decimals = 18;
     uint256 public totalSupply = 0 * 10**18;
     mapping(address => uint256) balances;
