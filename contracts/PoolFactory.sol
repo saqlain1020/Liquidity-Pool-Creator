@@ -5,6 +5,7 @@ import "./Pool.sol";
 
 contract PoolFactory {
     Pool[] public pools;
+    
     event PoolCreated(
         address indexed _pool,
         address indexed _token1,

@@ -23,8 +23,8 @@ describe("Pool", function () {
 
     await getBalances(contractToken1, contractToken2, owner.address);
 
-    await contractToken1.approve(contractPool.address, toWei("100"));
-    await contractToken2.approve(contractPool.address, toWei("100"));
+    await contractToken1.approve(contractPool.address, toWei("1000"));
+    await contractToken2.approve(contractPool.address, toWei("1000"));
 
     await getAllowance(owner.address, contractPool.address, contractToken1);
     await getAllowance(owner.address, contractPool.address, contractToken2);
@@ -36,7 +36,7 @@ describe("Pool", function () {
     expect(Number(toEth(resultingOfSwap))).to.greaterThanOrEqual(16);
     console.log("After swap should get", toEth(resultingOfSwap));
 
-    await contractPool.swap(toWei("10"), "0");
+    await contractPool.swap(owner.address, toWei("10"), "0");
     await debugContractBalances(contractPool, contractToken1, contractToken2);
 
     await getBalances(contractToken1, contractToken2, owner.address);
@@ -52,6 +52,10 @@ describe("Pool", function () {
     console.log(toEth(await contractPool.reserveToken1()));
     console.log(toEth(await contractPool.reserveToken2()));
     await getBalances(contractToken1, contractToken2, owner.address);
+
+    await contractPool.addLiquidity(toWei("100"), toWei("100"));
+
+    await testBytesCall(contractPool, owner.address);
   });
 
   it("Should pass the pool factory test", async function () {
@@ -72,6 +76,34 @@ describe("Pool", function () {
     console.log("Created pool", pool);
   });
 });
+
+async function testBytesCall(contract: Pool, account: string) {
+  const TOKEN1 = "0";
+  const TOKEN2 = "1";
+
+  let resultingToken2 = await contract.resultingTokens(toWei("10"), TOKEN1);
+
+  const functionSignature = "swap(address,uint256,uint8)";
+  const data = {
+    types: ["address", "uint256", "uint8"],
+    values: [account, resultingToken2, TOKEN2],
+  };
+  // Get resulting tokens 2 after the swap and reswap them for tokens 1, use those tokens 1 to pay for the swap
+  let bytes = bytesExternal(contract.address, functionSignature, data.types, data.values);
+
+  await contract.flashSwap(account, toWei("10"), resultingToken2, TOKEN1, bytes);
+}
+
+function bytesExternal(contractAddress: string, functionSig: string, types: string[], values: any[]) {
+  expect(types.length).to.equal(values.length);
+  let abiCoder = new ethers.utils.AbiCoder();
+
+  let sig = ethers.utils.keccak256(new TextEncoder().encode(functionSig));
+  let encoded = sig.slice(0, 10) + abiCoder.encode(types, values).slice(2);
+
+  let bytes = abiCoder.encode(["address", "bytes"], [contractAddress, encoded]);
+  return bytes;
+}
 
 async function printLastEvent(receipt: ContractReceipt, abi: any) {
   let iface = new ethers.utils.Interface(abi);

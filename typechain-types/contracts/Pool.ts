@@ -32,6 +32,7 @@ export interface PoolInterface extends utils.Interface {
     "destroyContract()": FunctionFragment;
     "feeDecimals()": FunctionFragment;
     "feePercent()": FunctionFragment;
+    "flashSwap(address,uint256,uint256,uint8,bytes)": FunctionFragment;
     "lpToken()": FunctionFragment;
     "lpTokenBalanceOf(address)": FunctionFragment;
     "lpTokenSupply()": FunctionFragment;
@@ -41,7 +42,7 @@ export interface PoolInterface extends utils.Interface {
     "reserveToken1()": FunctionFragment;
     "reserveToken2()": FunctionFragment;
     "resultingTokens(uint256,uint8)": FunctionFragment;
-    "swap(uint256,uint8)": FunctionFragment;
+    "swap(address,uint256,uint8)": FunctionFragment;
     "token1()": FunctionFragment;
     "token1Address()": FunctionFragment;
     "token1Balance()": FunctionFragment;
@@ -60,6 +61,7 @@ export interface PoolInterface extends utils.Interface {
       | "destroyContract"
       | "feeDecimals"
       | "feePercent"
+      | "flashSwap"
       | "lpToken"
       | "lpTokenBalanceOf"
       | "lpTokenSupply"
@@ -98,6 +100,10 @@ export interface PoolInterface extends utils.Interface {
     functionFragment: "feePercent",
     values?: undefined
   ): string;
+  encodeFunctionData(
+    functionFragment: "flashSwap",
+    values: [string, BigNumberish, BigNumberish, BigNumberish, BytesLike]
+  ): string;
   encodeFunctionData(functionFragment: "lpToken", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "lpTokenBalanceOf",
@@ -130,7 +136,7 @@ export interface PoolInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "swap",
-    values: [BigNumberish, BigNumberish]
+    values: [string, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "token1", values?: undefined): string;
   encodeFunctionData(
@@ -180,6 +186,7 @@ export interface PoolInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "feePercent", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "flashSwap", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "lpToken", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "lpTokenBalanceOf",
@@ -330,6 +337,15 @@ export interface Pool extends BaseContract {
 
     feePercent(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    flashSwap(
+      account: string,
+      _amount: BigNumberish,
+      _requiredAmount2: BigNumberish,
+      _sendingToken: BigNumberish,
+      data: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     lpToken(overrides?: CallOverrides): Promise<[string]>;
 
     lpTokenBalanceOf(
@@ -358,6 +374,7 @@ export interface Pool extends BaseContract {
     ): Promise<[BigNumber]>;
 
     swap(
+      account: string,
       _amount: BigNumberish,
       _sendingToken: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -403,6 +420,15 @@ export interface Pool extends BaseContract {
 
   feePercent(overrides?: CallOverrides): Promise<BigNumber>;
 
+  flashSwap(
+    account: string,
+    _amount: BigNumberish,
+    _requiredAmount2: BigNumberish,
+    _sendingToken: BigNumberish,
+    data: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   lpToken(overrides?: CallOverrides): Promise<string>;
 
   lpTokenBalanceOf(
@@ -431,6 +457,7 @@ export interface Pool extends BaseContract {
   ): Promise<BigNumber>;
 
   swap(
+    account: string,
     _amount: BigNumberish,
     _sendingToken: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -474,6 +501,15 @@ export interface Pool extends BaseContract {
 
     feePercent(overrides?: CallOverrides): Promise<BigNumber>;
 
+    flashSwap(
+      account: string,
+      _amount: BigNumberish,
+      _requiredAmount2: BigNumberish,
+      _sendingToken: BigNumberish,
+      data: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
     lpToken(overrides?: CallOverrides): Promise<string>;
 
     lpTokenBalanceOf(
@@ -500,6 +536,7 @@ export interface Pool extends BaseContract {
     ): Promise<BigNumber>;
 
     swap(
+      account: string,
       _amount: BigNumberish,
       _sendingToken: BigNumberish,
       overrides?: CallOverrides
@@ -579,6 +616,15 @@ export interface Pool extends BaseContract {
 
     feePercent(overrides?: CallOverrides): Promise<BigNumber>;
 
+    flashSwap(
+      account: string,
+      _amount: BigNumberish,
+      _requiredAmount2: BigNumberish,
+      _sendingToken: BigNumberish,
+      data: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     lpToken(overrides?: CallOverrides): Promise<BigNumber>;
 
     lpTokenBalanceOf(
@@ -607,6 +653,7 @@ export interface Pool extends BaseContract {
     ): Promise<BigNumber>;
 
     swap(
+      account: string,
       _amount: BigNumberish,
       _sendingToken: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -653,6 +700,15 @@ export interface Pool extends BaseContract {
 
     feePercent(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    flashSwap(
+      account: string,
+      _amount: BigNumberish,
+      _requiredAmount2: BigNumberish,
+      _sendingToken: BigNumberish,
+      data: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     lpToken(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     lpTokenBalanceOf(
@@ -681,6 +737,7 @@ export interface Pool extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     swap(
+      account: string,
       _amount: BigNumberish,
       _sendingToken: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }

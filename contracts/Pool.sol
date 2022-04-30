@@ -57,29 +57,47 @@ contract Pool is Ownable {
 
     // TODO: require minimum swap amount limit
 
-    function swap(uint256 _amount, Token _sendingToken)
-        external
+    function swap(address account, uint256 _amount, Token _sendingToken)
+        public
         reserveNotZero
         returns (bool)
     {
+        console.log("inswap");
         // 0. Check if sending token is approved for transfer
         if (_sendingToken == Token.TOKEN1) {
             require(
-                token1.allowance(msg.sender, address(this)) >= _amount,
+                token1.allowance(account, address(this)) >= _amount,
                 "Not enough allowance"
             );
         } else {
             require(
-                token2.allowance(msg.sender, address(this)) >= _amount,
+                token2.allowance(account, address(this)) >= _amount,
                 "Not enough allowance"
             );
         }
-        // 1. Send resulting tokens to user
+        // 1. Calculate resulting tokens
         uint256 _resultingTokens = resultingTokens(_amount, _sendingToken);
+
+        return
+            flashSwap(account,_amount, _resultingTokens, _sendingToken, abi.encode());
+    }
+
+    function flashSwap(
+        address account,
+        uint256 _amount,
+        uint256 _requiredAmount2,
+        Token _sendingToken,
+        bytes memory data
+    ) public reserveNotZero returns (bool) {
+        // 1. Calculate resulting tokens
+        uint256 _resultingTokens = resultingTokens(_amount, _sendingToken);
+
+        require(_resultingTokens >= _requiredAmount2, "Invalid Amount");
+
         if (_sendingToken == Token.TOKEN1) {
-            token2.transfer(msg.sender, _resultingTokens);
+            token2.transfer(account, _requiredAmount2);
         } else if (_sendingToken == Token.TOKEN2) {
-            token1.transfer(msg.sender, _resultingTokens);
+            token1.transfer(account, _requiredAmount2);
         } else {
             assert(true);
         }
@@ -93,9 +111,18 @@ contract Pool is Ownable {
         }
         // 3. TODO - external function
 
+        if (data.length > 0) {
+            (address _addr,  bytes memory _args) = abi.decode(
+                data,
+                (address,  bytes)
+            );
+            (bool success,)=_addr.call(_args);
+            require(success, "External call failed");
+        }
+
         // 4. transfer tokens to contract
         (_sendingToken == Token.TOKEN1 ? token1 : token2).transferFrom(
-            msg.sender,
+            account,
             address(this),
             _amount
         );
