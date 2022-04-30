@@ -6,8 +6,8 @@ import { task } from "hardhat/config";
 import { HardhatUserConfig } from "hardhat/config";
 // This adds support for typescript paths mappings
 import "tsconfig-paths/register";
-import '@typechain/hardhat'
-import '@nomiclabs/hardhat-ethers'
+import "@typechain/hardhat";
+import "@nomiclabs/hardhat-ethers";
 
 task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
   const accounts = await hre.ethers.getSigners();
@@ -18,7 +18,22 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 });
 
 const config: HardhatUserConfig = {
-  solidity: "0.8.13",
+  solidity: {
+    version: "0.8.13",
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 2000,
+        details: {
+          yul: true,
+          yulDetails: {
+            stackAllocation: true,
+            optimizerSteps: "dhfoDgvulfnTUtnIf",
+          },
+        },
+      },
+    },
+  },
   networks: {
     goerli: {
       url: process.env.GOERLI_INFURIA_PROVIDER,
@@ -30,3 +45,4 @@ const config: HardhatUserConfig = {
   },
 };
 export default config;
+
