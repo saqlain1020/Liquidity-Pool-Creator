@@ -40,11 +40,11 @@ async function deployPoolFactory() {
 }
 
 async function main() {
-  console.log("Uncomment to deploy");
+  // console.log("Uncomment to deploy");
   // console.log("Deploying Pool");
   // await deployPool();
-  // console.log("Deploying PoolFactory");
-  // await deployPoolFactory()
+  console.log("Deploying PoolFactory");
+  await deployPoolFactory()
 }
 
 function verifyContract(contractAddress: string, constructorArguments: string[], intervalSec: number = 10) {

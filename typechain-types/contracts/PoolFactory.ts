@@ -4,7 +4,6 @@
 import type {
   BaseContract,
   BigNumber,
-  BigNumberish,
   BytesLike,
   CallOverrides,
   ContractTransaction,
@@ -30,12 +29,11 @@ export interface PoolFactoryInterface extends utils.Interface {
   functions: {
     "createPool(address,address,string,string)": FunctionFragment;
     "getPool(address,address)": FunctionFragment;
-    "pools(uint256)": FunctionFragment;
     "tokensToPool(address,address)": FunctionFragment;
   };
 
   getFunction(
-    nameOrSignatureOrTopic: "createPool" | "getPool" | "pools" | "tokensToPool"
+    nameOrSignatureOrTopic: "createPool" | "getPool" | "tokensToPool"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -46,7 +44,6 @@ export interface PoolFactoryInterface extends utils.Interface {
     functionFragment: "getPool",
     values: [string, string]
   ): string;
-  encodeFunctionData(functionFragment: "pools", values: [BigNumberish]): string;
   encodeFunctionData(
     functionFragment: "tokensToPool",
     values: [string, string]
@@ -54,7 +51,6 @@ export interface PoolFactoryInterface extends utils.Interface {
 
   decodeFunctionResult(functionFragment: "createPool", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "getPool", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "pools", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "tokensToPool",
     data: BytesLike
@@ -120,8 +116,6 @@ export interface PoolFactory extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    pools(arg0: BigNumberish, overrides?: CallOverrides): Promise<[string]>;
-
     tokensToPool(
       arg0: string,
       arg1: string,
@@ -143,8 +137,6 @@ export interface PoolFactory extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
-  pools(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
-
   tokensToPool(
     arg0: string,
     arg1: string,
@@ -165,8 +157,6 @@ export interface PoolFactory extends BaseContract {
       _token2: string,
       overrides?: CallOverrides
     ): Promise<string>;
-
-    pools(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
     tokensToPool(
       arg0: string,
@@ -203,8 +193,6 @@ export interface PoolFactory extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    pools(arg0: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
-
     tokensToPool(
       arg0: string,
       arg1: string,
@@ -224,11 +212,6 @@ export interface PoolFactory extends BaseContract {
     getPool(
       _token1: string,
       _token2: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    pools(
-      arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
